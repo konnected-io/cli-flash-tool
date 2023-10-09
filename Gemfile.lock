@@ -1,0 +1,55 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activesupport (7.1.0)
+      base64
+      bigdecimal
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      connection_pool (>= 2.2.5)
+      drb
+      i18n (>= 1.6, < 2)
+      minitest (>= 5.1)
+      mutex_m
+      tzinfo (~> 2.0)
+    base64 (0.1.1)
+    bigdecimal (3.1.4)
+    concurrent-ruby (1.2.2)
+    connection_pool (2.4.1)
+    drb (2.1.1)
+      ruby2_keywords
+    faraday (2.7.11)
+      base64
+      faraday-net_http (>= 2.0, < 3.1)
+      ruby2_keywords (>= 0.0.4)
+    faraday-multipart (1.0.4)
+      multipart-post (~> 2)
+    faraday-net_http (3.0.2)
+    i18n (1.14.1)
+      concurrent-ruby (~> 1.0)
+    img2zpl (1.0.1)
+      mini_magick (~> 4.9)
+    labelary (0.5.0)
+      activesupport
+      faraday (>= 0.9, < 3)
+      faraday-multipart
+    mini_magick (4.12.0)
+    minitest (5.20.0)
+    multipart-post (2.3.0)
+    mutex_m (0.1.2)
+    rainbow (3.1.1)
+    ruby2_keywords (0.0.5)
+    tzinfo (2.0.6)
+      concurrent-ruby (~> 1.0)
+    zebra-zpl (1.1.4)
+      img2zpl (~> 1.0.0)
+
+PLATFORMS
+  arm64-darwin-22
+
+DEPENDENCIES
+  labelary
+  rainbow
+  zebra-zpl
+
+BUNDLED WITH
+   2.4.19
