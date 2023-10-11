@@ -27,13 +27,6 @@ class PreflightRunner
         end
         cleanup
         print_status
-
-        # @success_count += 1
-        # seconds = (Time.now - @started_at).to_i
-        # puts "## SUCCESS! "
-        # puts "## Elapsed: #{"#{seconds / 60}:" + "%02d" % (seconds % 60)}"
-        # puts "## Please unplug the device and affix the label.\n\n"
-        # device.wait_till_unplugged
       end
       sleep 
     end
@@ -49,9 +42,14 @@ class PreflightRunner
       "#{seconds / 60}:" + "%02d" % (seconds % 60)
     end
 
+    def increment_success
+      @success_count += 1
+    end
+
     def print_status
       puts %x{clear}
-      puts "Konnected CLI Flash Tool\nkonnected.io\n"
+      puts Rainbow("Konnected CLI Flash Tool").cyan.inverse
+      puts Rainbow("konnected.io").aqua
       puts "Elapsed: #{elapsed_time}   Flashed: #{@success_count}\n\n"
       @ports.each do |name, status|
         puts "#{name}: #{status}\n"

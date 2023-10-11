@@ -16,17 +16,20 @@ class ProPreflight < GenericPreflight
     erase_lfs_region
     generate_label
     print_label
+
+    @runner.update_status port, Rainbow("DONE: #{@device_id}").green.inverse
+    @runner.increment_success
   end
 
   def erase_lfs_region
     IO.popen("esptool.py --port=#{port} --baud 115200 erase_region 0x310000 0x58000").each do |line|
-      puts Rainbow(line.chomp).aqua
+      @runner.update_status port, Rainbow(line.chomp).aqua
     end
   end
 
   def generate_label
-    # batchnum = Time.now.strftime "%y%m"
-    batchnum = '2305'
+    batchnum = Time.now.strftime "%y%m"
+    @runner.update_status port, Rainbow("Generating label: #{@device_id}").yellow
     label = Zebra::Zpl::Label.new(
       width:        203,
       length:       101,
@@ -56,11 +59,11 @@ class ProPreflight < GenericPreflight
   end
 
   def print_label
+    @runner.update_status port, Rainbow("Printing label: #{@device_id}").yellow
     png = Labelary::Label.render zpl: @zpl, content_type: 'application/pdf', dpmm: 8, width: 1, height: 0.5
     file = Tempfile.new(['pro-label', '.pdf'])
     file.write(png)
     file.close
-    puts file.path
     `lp -d Brother_QL_810W_2 -o orientation-requested=4 -o media='0.5x1.0\"' #{file.path}`
     file.unlink
   end

@@ -47,6 +47,7 @@ PLATFORMS
   arm64-darwin-22
 
 DEPENDENCIES
+  activesupport
   labelary
   rainbow
   zebra-zpl
