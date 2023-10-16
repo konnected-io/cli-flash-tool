@@ -3,7 +3,6 @@ class PreflightRunner
     SERIAL_PORT_PATTERN="/dev/cu.usbserial*"
 
     def initialize
-      @device_class = ProPreflight
       @ports = Hash.new
       @started_at = Time.now
       @success_count = 0
@@ -11,6 +10,7 @@ class PreflightRunner
     end
   
     def run
+      select_product
       while true do
         sleep 1
         Dir[SERIAL_PORT_PATTERN].each do |port|
@@ -29,6 +29,23 @@ class PreflightRunner
         print_status
       end
       sleep 
+    end
+
+    def select_product
+      puts Rainbow("\nWhich product are we flashing?").green.inverse
+      puts "[1] Alarm Panel Pro"
+      puts "[2] Garage Door Opener (v2)"
+      product_id = STDIN.gets.strip
+      case product_id.to_i
+        when 1
+          @device_class = ProPreflight
+        when 2
+          @device_class = GdoPreflight
+          GdoPreflight.download_firmware
+        else
+          puts Rainbow("Bad entry!").yellow
+          raise("You suck")
+        end        
     end
 
     def cleanup
@@ -50,6 +67,8 @@ class PreflightRunner
       puts %x{clear}
       puts Rainbow("Konnected CLI Flash Tool").cyan.inverse
       puts Rainbow("konnected.io").aqua
+      puts Rainbow(@device_class.product_name).green
+      puts Rainbow("CTRL-C to exit").gray
       puts "Elapsed: #{elapsed_time}   Flashed: #{@success_count}\n\n"
       @ports.each do |name, status|
         puts "#{name}: #{status}\n"

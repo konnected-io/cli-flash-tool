@@ -4,7 +4,9 @@ require './lib/generic_preflight.rb'
 
 class ProPreflight < GenericPreflight
 
-  def firmwares
+  @product_name = 'Alarm Panel Pro'
+
+  def self.firmwares
     [ 
       { file: 'konnected-pro-fw_v1.3.3-53178cb_1674758493.bin', offset: '0x0'}, 
       { file: 'konnected-pro-fs_v1.3.3-53178cb_1674758828.bin', offset: '0x368000'} 
@@ -16,9 +18,7 @@ class ProPreflight < GenericPreflight
     erase_lfs_region
     generate_label
     print_label
-
-    @runner.update_status port, Rainbow("DONE: #{@device_id}").green.inverse
-    @runner.increment_success
+    finish
   end
 
   def erase_lfs_region
@@ -56,16 +56,6 @@ class ProPreflight < GenericPreflight
   
     @zpl = ''
     label.dump_contents @zpl
-  end
-
-  def print_label
-    @runner.update_status port, Rainbow("Printing label: #{@device_id}").yellow
-    png = Labelary::Label.render zpl: @zpl, content_type: 'application/pdf', dpmm: 8, width: 1, height: 0.5
-    file = Tempfile.new(['pro-label', '.pdf'])
-    file.write(png)
-    file.close
-    `lp -d Brother_QL_810W_2 -o orientation-requested=4 -o media='0.5x1.0\"' #{file.path}`
-    file.unlink
   end
 
 end

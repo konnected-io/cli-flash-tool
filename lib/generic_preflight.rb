@@ -1,6 +1,10 @@
 class GenericPreflight
 
   attr_reader :port
+  
+  def self.product_name
+    @product_name
+  end
 
   def initialize(port, runner)
     @started_at = Time.now
@@ -9,12 +13,12 @@ class GenericPreflight
   end
 
   def flash_firmware
-    file_parts = if firmwares.is_a?(Array)
-      firmwares.map do |part|
-        "#{part[:offset]} ~/Downloads/#{part[:file]}"
+    file_parts = if self.class.firmwares.is_a?(Array)
+      self.class.firmwares.map do |part|
+        "#{part[:offset]} #{Dir.home}/Downloads/#{part[:file]}"
       end.join(' ')
     else
-      "0x0 ~/Downloads/#{firmwares}"
+      "0x0 #{Dir.home}/Downloads/#{self.class.firmwares}"
     end
 
     esptool_output = []
@@ -26,6 +30,21 @@ class GenericPreflight
     sleep 1 # wait for device to reset after flashing
   end
 
+  def print_label
+    @runner.update_status port, Rainbow("Printing label: #{@device_id}").yellow
+    png = Labelary::Label.render zpl: @zpl, content_type: 'application/pdf', dpmm: 8, width: 1, height: 0.5
+    file = Tempfile.new(['label', '.pdf'])
+    file.write(png)
+    file.close
+    `lp -d Brother_QL_810W_2 -o orientation-requested=4 -o media='0.5x1.0\"' #{file.path}`
+    file.unlink
+  end
+
+  def finish
+    @runner.update_status port, Rainbow("DONE: #{@device_id}").green.inverse
+    @runner.increment_success
+  end
+
   def wait_till_unplugged
     until !File.exist?(port) do
       sleep 1
@@ -33,3 +52,4 @@ class GenericPreflight
   end
 
 end
+

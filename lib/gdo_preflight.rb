@@ -2,23 +2,37 @@ require './lib/generic_preflight.rb'
 
 class GdoPreflight < GenericPreflight
 
-  def firmwares 
-    [{ file: 'konnected-esphome-garage-door-esp32-0.3.1.bin', offset: '0x0'}]
+  @product_name = 'Garage Door Opener (v2)'
+
+  def self.download_firmware
+    github_releases_url = 'https://api.github.com/repos/konnected-io/konnected-esphome/releases/latest'
+    key = 'konnected-esphome-garage-door-esp32'
+    release_json = JSON.parse(Net::HTTP.get(URI(github_releases_url)))
+    release = release_json['assets'].detect{|asset| asset['name'].start_with?(key) }
+    download_url = release['browser_download_url']
+    @filename = download_url.split('/').last
+    puts Rainbow("Downloading #{download_url}").yellow
+    URI.open(download_url) do |file|
+      File.open("#{Dir.home}/Downloads/#{@filename}", "wb") do |f|
+        f.write(file.read)
+      end
+    end
   end
 
-  # def detect_port
-  #   @port = %w{ /dev/ttyUSB[0-9]* /dev/cu.SLAB_USBtoUART* /dev/cu.usbserial* }.map do |pattern|
-  #     Dir[pattern].first
-  #   end.compact.first
-  # end
+  def self.firmwares 
+    @filename
+  end
 
   def start
     flash_firmware
+    generate_label
     print_label
+    finish
   end
 
-  def print_label
+  def generate_label
     batchnum = Time.now.strftime "%y%m"
+    @runner.update_status port, Rainbow("Generating label: #{@device_id}").yellow
     label = Zebra::Zpl::Label.new(
       width:        203,
       length:       101,
@@ -48,11 +62,9 @@ class GdoPreflight < GenericPreflight
         symbol_height:     3
       )
   
-    zpl = ''
-    label.dump_contents zpl
-    puts "\n"
-    puts zpl
-    puts "\n"
+    @zpl = ''
+    label.dump_contents @zpl
+    # TODO: send to printer
   end
 
 end
