@@ -1,0 +1,5 @@
+label_printer:
+  enabled: true
+  type: pdf
+  name: Brother_QL_810W
+  ip: 192.168.1.33

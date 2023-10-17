@@ -25,8 +25,10 @@ class GdoPreflight < GenericPreflight
 
   def start
     flash_firmware
-    generate_label
-    print_label
+    if @runner.config.label_printer[:enabled]
+      generate_label
+      print_label
+    end
     finish
   end
 
@@ -62,9 +64,7 @@ class GdoPreflight < GenericPreflight
         symbol_height:     3
       )
   
-    @zpl = ''
-    label.dump_contents @zpl
-    # TODO: send to printer
+    @label = label
   end
 
 end

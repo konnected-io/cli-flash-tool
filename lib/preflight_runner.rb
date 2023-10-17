@@ -2,7 +2,10 @@ class PreflightRunner
 
     SERIAL_PORT_PATTERN="/dev/cu.usbserial*"
 
+    attr_reader :config
+
     def initialize
+      @config = Config.new
       @ports = Hash.new
       @started_at = Time.now
       @success_count = 0

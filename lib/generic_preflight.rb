@@ -32,12 +32,14 @@ class GenericPreflight
 
   def print_label
     @runner.update_status port, Rainbow("Printing label: #{@device_id}").yellow
-    png = Labelary::Label.render zpl: @zpl, content_type: 'application/pdf', dpmm: 8, width: 1, height: 0.5
-    file = Tempfile.new(['label', '.pdf'])
-    file.write(png)
-    file.close
-    `lp -d Brother_QL_810W_2 -o orientation-requested=4 -o media='0.5x1.0\"' #{file.path}`
-    file.unlink
+    case @runner.config.label_printer[:type]
+    when 'pdf'
+      print_pdf_label
+    when 'zpl'
+      print_zpl_label
+    else
+      puts Rainbow("Invalid label type `#{@runner.config.label_printer[:type]}`!").red
+    end
   end
 
   def finish
@@ -49,6 +51,25 @@ class GenericPreflight
     until !File.exist?(port) do
       sleep 1
     end
+  end
+
+  private
+
+  def print_zpl_label
+    print_job = Zebra::PrintJob.new @runner.config.label_printer[:name]
+    ip = @runner.config.label_printer[:ip]
+    print_job.print @label, ip
+  end
+
+  def print_pdf_label
+    zpl = ''
+    @label.dump_contents zpl
+    png = Labelary::Label.render zpl: zpl, content_type: 'application/pdf', dpmm: 8, width: 1, height: 0.5
+    file = Tempfile.new(['label', '.pdf'])
+    file.write(png)
+    file.close
+    `lp -d #{@runner.config.label_printer[:name]} -o orientation-requested=4 -o media='0.5x1.0\"' #{file.path}`
+    file.unlink
   end
 
 end

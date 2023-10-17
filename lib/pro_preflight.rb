@@ -16,8 +16,10 @@ class ProPreflight < GenericPreflight
   def start
     flash_firmware
     erase_lfs_region
-    generate_label
-    print_label
+    if @runner.config.label_printer[:enabled]
+      generate_label
+      print_label
+    end
     finish
   end
 
@@ -54,8 +56,7 @@ class ProPreflight < GenericPreflight
         symbol_height:     3
       )
   
-    @zpl = ''
-    label.dump_contents @zpl
+    @label = label
   end
 
 end
