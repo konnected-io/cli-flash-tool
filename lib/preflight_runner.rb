@@ -2,7 +2,7 @@ class PreflightRunner
 
     SERIAL_PORT_PATTERN="/dev/cu.usbserial*"
 
-    attr_reader :config
+    attr_reader :config, :batchnum
 
     def initialize
       @config = Config.new
@@ -14,6 +14,7 @@ class PreflightRunner
   
     def run
       select_product
+      set_batchnum
       while true do
         sleep 1
         Dir[SERIAL_PORT_PATTERN].each do |port|
@@ -35,6 +36,7 @@ class PreflightRunner
     end
 
     def select_product
+      puts %x{clear}
       puts Rainbow("\nWhich product are we flashing?").green.inverse
       puts "[1] Alarm Panel Pro"
       puts "[2] Garage Door Opener (v1-S)"
@@ -53,6 +55,25 @@ class PreflightRunner
           puts Rainbow("Bad entry!").yellow
           raise("You suck")
         end        
+    end
+
+    def set_batchnum
+      puts %x{clear}
+      batchnum = Time.now.strftime "%y%m"
+      puts Rainbow("\nBatch number?").green.inverse
+      puts "[ENTER] #{batchnum}"
+      puts "[____] custom"
+      entry = STDIN.gets.strip
+      if entry.blank?
+        @batchnum = batchnum
+      else
+        if entry.match(/\A\d{4}\Z/)
+          @batchnum = entry
+        else
+          puts Rainbow("Bad entry! Batch nubmer should be a 4-digit YYMM").yellow
+          raise("Invalid batch number")
+        end
+      end
     end
 
     def cleanup

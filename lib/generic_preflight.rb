@@ -68,7 +68,7 @@ class GenericPreflight
     file = Tempfile.new(['label', '.pdf'])
     file.write(png)
     file.close
-    `lp -d #{@runner.config.label_printer[:name]} -o orientation-requested=4 -o media='0.5x1.0\"' #{file.path}`
+    `lp -d #{@runner.config.label_printer[:name]} -o orientation-requested=4 -o media='0.5x1.1' #{file.path}`
     file.unlink
   end
 

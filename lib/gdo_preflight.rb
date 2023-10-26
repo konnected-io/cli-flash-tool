@@ -15,7 +15,6 @@ class GdoPreflight < GenericPreflight
   end
 
   def generate_label
-    batchnum = Time.now.strftime "%y%m"
     @runner.update_status port, Rainbow("Generating label: #{@device_id}").yellow
     label = Zebra::Zpl::Label.new(
       width:        203,
@@ -35,7 +34,7 @@ class GdoPreflight < GenericPreflight
       )
   
     label << Zebra::Zpl::Text.new(
-        data: "Batch: #{batchnum}",
+        data: "Batch: #{@runner.batchnum}",
         position: [20, 70],
         font_size: Zebra::Zpl::FontSize::SIZE_1
       )
