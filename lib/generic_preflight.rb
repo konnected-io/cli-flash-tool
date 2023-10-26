@@ -43,7 +43,7 @@ class GenericPreflight
   end
 
   def finish
-    @runner.update_status port, Rainbow("DONE: #{@device_id}").green.inverse
+    @runner.update_status port, Rainbow("#{@device_id}").green.inverse
     @runner.increment_success
   end
 

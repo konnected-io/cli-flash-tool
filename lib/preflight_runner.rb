@@ -37,14 +37,18 @@ class PreflightRunner
     def select_product
       puts Rainbow("\nWhich product are we flashing?").green.inverse
       puts "[1] Alarm Panel Pro"
-      puts "[2] Garage Door Opener (v2)"
+      puts "[2] Garage Door Opener (v1-S)"
+      puts "[3] Garage Door Opener (v2-S)"
       product_id = STDIN.gets.strip
       case product_id.to_i
         when 1
           @device_class = ProPreflight
         when 2
-          @device_class = GdoPreflight
-          GdoPreflight.download_firmware
+          @device_class = GdoV1sPreflight
+          @device_class.download_firmware
+        when 3
+          @device_class = GdoV2sPreflight
+          @device_class.download_firmware
         else
           puts Rainbow("Bad entry!").yellow
           raise("You suck")
@@ -53,7 +57,10 @@ class PreflightRunner
 
     def cleanup
       @ports.each do |port,_|
-        @ports[port] = 'disconnected' unless File.exist?(port)
+        unless File.exist?(port)
+          device_id = @ports[port].scan(/[0-9a-f]{12}/)[0]
+          @ports[port] = Rainbow(device_id).dimgray
+        end
       end
     end
   
