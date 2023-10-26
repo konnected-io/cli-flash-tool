@@ -18,14 +18,13 @@ class PreflightRunner
       while true do
         sleep 1
         Dir[SERIAL_PORT_PATTERN].each do |port|
-          if @ports[port].nil? || @ports[port] == 'disconnected'
+          if @ports[port].nil? || @ports[port].start_with?("\e[38;5;102m")
             @ports[port] = 'connected'
           end
           
           if @ports[port] == 'connected'
             device = @device_class.new(port, self)
             @ports[port] = 'checking'
-            puts Rainbow("Device plugged in at #{port}").magenta
             Thread.new { device.start }
           end
         end
