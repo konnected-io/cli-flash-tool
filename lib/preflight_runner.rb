@@ -44,6 +44,7 @@ class PreflightRunner
       case product_id.to_i
         when 1
           @device_class = ProPreflight
+          @device_class.download_firmware
         when 2
           @device_class = GdoV1sPreflight
           @device_class.download_firmware

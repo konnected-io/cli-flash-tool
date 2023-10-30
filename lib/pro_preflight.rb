@@ -6,11 +6,30 @@ class ProPreflight < GenericPreflight
 
   @product_name = 'Alarm Panel Pro'
 
+  def modelnum
+    'APPROv1'
+  end
+
+  def self.download_firmware
+    mainfest_url = 'https://install.konnected.io/manifest.json'
+    manifest_json = JSON.parse(Net::HTTP.get(URI(mainfest_url)))
+    build = manifest_json['builds'].detect{|build| build['chipFamily'] == 'ESP32' }
+    @firmwares = []
+    build['parts'].each do |part|
+      download_url = part['path']
+      filename = download_url.split('/').last
+      puts Rainbow("Downloading #{download_url}").yellow
+      URI.open(download_url) do |file|
+        File.open("#{Dir.home}/Downloads/#{filename}", "wb") do |f|
+          f.write(file.read)
+        end
+      end
+      @firmwares << { file: filename, offset: "0x#{part['offset'].to_i.to_s(16)}" }
+    end
+  end
+
   def self.firmwares
-    [ 
-      { file: 'konnected-pro-fw_v1.3.3-53178cb_1674758493.bin', offset: '0x0'}, 
-      { file: 'konnected-pro-fs_v1.3.3-53178cb_1674758828.bin', offset: '0x368000'} 
-    ]
+    @firmwares
   end
 
   def start
