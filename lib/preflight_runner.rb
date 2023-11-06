@@ -1,7 +1,5 @@
 class PreflightRunner
 
-    SERIAL_PORT_PATTERN="/dev/cu.usbserial*"
-
     attr_reader :config, :batchnum
 
     def initialize
@@ -17,7 +15,7 @@ class PreflightRunner
       set_batchnum
       while true do
         sleep 1
-        Dir[SERIAL_PORT_PATTERN].each do |port|
+        Dir[config.serial_port_pattern].each do |port|
           if @ports[port].nil? || @ports[port].start_with?("\e[38;5;102m")
             @ports[port] = 'connected'
           end
