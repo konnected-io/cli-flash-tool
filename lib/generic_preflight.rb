@@ -22,7 +22,7 @@ class GenericPreflight
     end
 
     esptool_output = []
-    IO.popen("esptool.py --port=#{port} --baud 115200 write_flash --flash_mode dio #{file_parts}").each do |line|
+    IO.popen("esptool.py --port=#{port} --baud 460800 write_flash --flash_mode dio #{file_parts}").each do |line|
       esptool_output << line.chomp
       @runner.update_status(port, Rainbow(line.chomp).aqua)
     end
