@@ -7,7 +7,7 @@ class GdoV2sPreflight < GdoPreflight
 
   def self.download_firmware
     github_releases_url = 'https://api.github.com/repos/konnected-io/konnected-esphome/releases/latest'
-    key = 'konnected-esphome-garage-door-esp32'
+    key = 'konnected-esphome-garage-door-GDOv2-S'
     release_json = JSON.parse(Net::HTTP.get(URI(github_releases_url)))
     release = release_json['assets'].detect{|asset| asset['name'].start_with?(key) }
     download_url = release['browser_download_url']
