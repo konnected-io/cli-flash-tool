@@ -1,5 +1,6 @@
 require 'zebra/zpl'
 require 'labelary'
+require 'ssdp'
 require './lib/generic_preflight.rb'
 
 class ProPreflight < GenericPreflight
@@ -35,6 +36,8 @@ class ProPreflight < GenericPreflight
   def start
     flash_firmware
     erase_lfs_region
+    # get_device_id
+    return unless network_check
     if @runner.config.label_printer[:enabled]
       generate_label
       print_label
@@ -46,6 +49,43 @@ class ProPreflight < GenericPreflight
     IO.popen("esptool.py --port=#{port} --baud 115200 erase_region 0x310000 0x58000").each do |line|
       @runner.update_status port, Rainbow(line.chomp).aqua
     end
+  end
+
+  def network_check
+    ssdp_result = nil
+
+    begin
+      # connect to network
+      Timeout.timeout(30) do |sec|
+        start_time = Time.now.to_i
+        countdown = sec
+        until ssdp_result do
+          @runner.update_status port, Rainbow("CONNECT ETHERNET NOW. Timeout in #{countdown} sec.").yellow.inverse
+          st = 'urn:schemas-konnected-io:device:Security:2'
+          res = SSDP::Consumer.new(timeout: 3).search(service: st)
+          ssdp_result = res.detect do |r|
+            r[:params]['ST'] == 'urn:schemas-konnected-io:device:Security:2' &&
+              r[:params]['USN'].match(/\w{2}#{@device_id[0,10]}/)
+          end
+          countdown = sec - (Time.now.to_i - start_time)
+        end
+      end
+    rescue Timeout::Error
+      @runner.update_status port, Rainbow("FAILED: No network connection!").red
+      return false
+    end
+
+    ip = ssdp_result[:address]
+    @runner.update_status port, Rainbow("Ethernet connected with IP #{ip}. Running ping test...").aqua
+
+    # ping test
+    ping = `ping #{ip} -i 0.5 -c 15 -q`
+    packet_loss = ping.match(/(\d+\.\d+)% packet loss/)[1].to_i
+    if packet_loss > 0
+      @runner.update_status port, Rainbow("FAILED: Packet loss #{packet_loss}%").red
+      return false
+    end
+    true
   end
 
   def generate_label

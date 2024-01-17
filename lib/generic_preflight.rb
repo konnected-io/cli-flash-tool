@@ -30,6 +30,15 @@ class GenericPreflight
     sleep 1 # wait for device to reset after flashing
   end
 
+  def get_device_id
+    esptool_output = []
+    IO.popen("esptool.py --port=#{port} --baud 460800 chip_id").each do |line|
+      esptool_output << line.chomp
+      @runner.update_status(port, Rainbow(line.chomp).aqua)
+    end
+    @device_id = esptool_output.detect{|line| line.start_with?('MAC:')}.match(/^MAC: (.*)/)[1].gsub(':','')
+  end
+
   def print_label
     @runner.update_status port, Rainbow("Printing label: #{@device_id}").yellow
     case @runner.config.label_printer[:type]

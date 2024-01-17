@@ -38,6 +38,7 @@ GEM
     mutex_m (0.1.2)
     rainbow (3.1.1)
     ruby2_keywords (0.0.5)
+    ssdp (1.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     zebra-zpl (1.1.4)
@@ -51,6 +52,7 @@ DEPENDENCIES
   activesupport
   labelary
   rainbow
+  ssdp
   zebra-zpl
 
 BUNDLED WITH
