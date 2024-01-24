@@ -78,9 +78,11 @@ class ProPreflight < GenericPreflight
     ip = ssdp_result[:address]
     @runner.update_status port, Rainbow("Ethernet connected with IP #{ip}. Running ping test...").aqua
 
-    # ping test
-    ping = `ping #{ip} -i 0.5 -c 15 -q`
-    packet_loss = ping.match(/(\d+\.\d+)% packet loss/)[1].to_i
+    packet_loss = ping_test(ip)
+    if packet_loss > 0 && packet_loss < 10
+      @runner.update_status port, Rainbow("RETRY: Packet loss #{packet_loss}% Trying again...").yellow
+      packet_loss = ping_test(ip)
+    end
     if packet_loss > 0
       @runner.update_status port, Rainbow("FAILED: Packet loss #{packet_loss}%").red
       return false
@@ -115,6 +117,14 @@ class ProPreflight < GenericPreflight
       )
   
     @label = label
+  end
+
+  private
+
+  def ping_test(ip)
+    ping = `ping #{ip} -i 0.5 -c 15 -q`
+    packet_loss = ping.match(/(\d+\.\d+)% packet loss/)[1].to_i
+    return packet_loss
   end
 
 end
