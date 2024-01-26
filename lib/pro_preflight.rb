@@ -34,10 +34,15 @@ class ProPreflight < GenericPreflight
   end
 
   def start
-    flash_firmware
-    erase_lfs_region
-    # get_device_id
-    return unless network_check
+    if @runner.config.flash
+      flash_firmware
+      erase_lfs_region
+    else
+      get_device_id
+    end
+    if @runner.config.network_check
+      return unless network_check
+    end
     if @runner.config.label_printer[:enabled]
       generate_label
       print_label
@@ -122,7 +127,7 @@ class ProPreflight < GenericPreflight
   private
 
   def ping_test(ip)
-    ping = `ping #{ip} -i 0.5 -c 15 -q`
+    ping = `ping #{ip} -g 56 -G 1500 -h 64 -i 0.5 -q`
     packet_loss = ping.match(/(\d+\.\d+)% packet loss/)[1].to_i
     return packet_loss
   end

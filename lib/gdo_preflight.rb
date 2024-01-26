@@ -6,7 +6,7 @@ class GdoPreflight < GenericPreflight
   end
 
   def start
-    flash_firmware
+    flash_firmware if @runner.config.flash
     if @runner.config.label_printer[:enabled]
       generate_label
       print_label

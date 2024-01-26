@@ -1,6 +1,8 @@
-serial_port_pattern: /dev/cu.usbserial*
+flash: true
+network_check: true
 label_printer:
   enabled: true
   type: pdf
   name: Brother_QL_810W
   ip: 192.168.1.33
+serial_port_pattern: /dev/cu.usbserial*

@@ -60,18 +60,30 @@ cp config.yaml.example config.yaml
 
 Now edit the `config.yaml` with your settings and preferences. Here's an example:
 ```yaml
+flash: true
+network_check: true
 label_printer:
   enabled: true
   type: pdf
   name: Brother_QL_810W
   ip: 192.168.1.33
+serial_port_pattern: /dev/cu.usbserial*
 ```
+
+#### flash
+Set to `true` to flash the firmware, otherwise firmware will not be modified.
+
+#### network_check
+Set to `true` to run the Alarm Panel Pro network check.
 
 #### label_printer
 * *enabled* - `true` to enable label printing
 * *type* - `zpl` if using a Zebra printer, otherwise `pdf`
 * *name* - The CUPS name of the printer (use `lpstat -a`)
 * *ip* - The IP address of the printer (only needed when using Zebra printers)
+
+#### serial_port_pattern
+A file path pattern to scan for devices connected via USB/UART ports.
 
 ## Running
 Run the program by executing it in Ruby:
