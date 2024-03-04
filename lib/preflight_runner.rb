@@ -37,7 +37,8 @@ class PreflightRunner
       puts Rainbow("\nWhich product are we flashing?").green.inverse
       puts "[1] Alarm Panel Pro"
       puts "[2] Garage Door Opener (v1-S)"
-      puts "[3] Garage Door Opener (v2-S)"
+      puts "[3] Garage Door Opener White (v2-S)"
+      puts "[4] Garage Door Opener blaQ (v2-Q)"
       product_id = STDIN.gets.strip
       case product_id.to_i
         when 1
@@ -48,6 +49,9 @@ class PreflightRunner
           @device_class.download_firmware
         when 3
           @device_class = GdoV2sPreflight
+          @device_class.download_firmware
+        when 4
+          @device_class = GdoV2qPreflight
           @device_class.download_firmware
         else
           puts Rainbow("Bad entry!").yellow
