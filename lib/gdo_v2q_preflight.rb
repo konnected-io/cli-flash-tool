@@ -5,13 +5,24 @@ class GdoV2qPreflight < GdoPreflight
     'GDOv2-Q'
   end
 
+  def device_type
+    'GdoV2Q'
+  end
+
+  def chip
+    'ESP32'
+  end
+
+  def firmware_type
+    'esphome'
+  end
+
   def self.download_firmware
-    # github_releases_url = 'https://api.github.com/repos/konnected-io/konnected-esphome/releases/latest'
-    # key = 'konnected-esphome-garage-door-GDOv2-S'
-    # release_json = JSON.parse(Net::HTTP.get(URI(github_releases_url)))
-    # release = release_json['assets'].detect{|asset| asset['name'].start_with?(key) }
-    # download_url = release['browser_download_url']
-    download_url = 'https://konnected-io.s3.us-east-2.amazonaws.com/builds/esphome/konnected-esphome-garage-door-GDOv2-Q-0.0.1.bin'
+    github_releases_url = 'https://api.github.com/repos/konnected-io/konnected-esphome/releases/latest'
+    key = 'konnected-esphome-garage-door-GDOv2-Q'
+    release_json = JSON.parse(Net::HTTP.get(URI(github_releases_url)))
+    release = release_json['assets'].detect{|asset| asset['name'].start_with?(key) }
+    download_url = release['browser_download_url']
     @filename = download_url.split('/').last
     puts Rainbow("Downloading #{download_url}").yellow
     URI.open(download_url) do |file|

@@ -113,5 +113,19 @@ class PreflightRunner
       @ports[port] = status
     end
 
+    def api_token
+      @api_token ||= begin
+         cognito = Aws::CognitoIdentityProvider::Client.new(region: 'us-east-1')
+         res = cognito.admin_initiate_auth(
+           user_pool_id: ENV['COGNITO_USER_POOL_ID'],
+           client_id: ENV['COGNITO_CLIENT_ID'],
+           auth_flow: 'REFRESH_TOKEN_AUTH',
+           auth_parameters: {
+             'REFRESH_TOKEN' => ENV['COGNITO_REFRESH_TOKEN']
+           }
+         )
+         res[:authentication_result][:id_token]
+       end
+    end
   end
   

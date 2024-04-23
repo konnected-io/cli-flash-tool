@@ -51,6 +51,29 @@ class GenericPreflight
     end
   end
 
+  def preregister
+    @runner.update_status port, Rainbow("Pre-registering in Konnected Cloud").yellow
+    uri = 'https://b9txlif9fb.execute-api.us-east-1.amazonaws.com/dev/devices/preregister'
+    uri = URI(uri)
+    req = Net::HTTP::Post.new(uri)
+    req.body = {
+      id: @device_id,
+      batch: @runner.batchnum,
+      type: device_type,
+      firmware: firmware_type,
+      chip: chip
+    }.to_json
+    req.content_type = 'application/json'
+    req['Authorization'] = @runner.api_token
+    req['Accept'] = 'application/json'
+
+    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(req)
+    end
+
+    res.is_a?(Net::HTTPSuccess)
+  end
+
   def finish
     @runner.update_status port, Rainbow("#{@device_id}").green.inverse
     @runner.increment_success

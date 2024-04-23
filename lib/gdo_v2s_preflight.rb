@@ -5,6 +5,18 @@ class GdoV2sPreflight < GdoPreflight
     'GDOv2-S'
   end
 
+  def device_type
+    'GdoV2S'
+  end
+
+  def chip
+    'ESP32'
+  end
+
+  def firmware_type
+    'esphome'
+  end
+
   def self.download_firmware
     github_releases_url = 'https://api.github.com/repos/konnected-io/konnected-esphome/releases/latest'
     key = 'konnected-esphome-garage-door-GDOv2-S'

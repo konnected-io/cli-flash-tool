@@ -11,6 +11,18 @@ class ProPreflight < GenericPreflight
     'APPROv1'
   end
 
+  def device_type
+    'AlarmPanel'
+  end
+
+  def chip
+    'ESP32'
+  end
+
+  def firmware_type
+    'nodemcu'
+  end
+
   def self.download_firmware
     mainfest_url = 'https://install.konnected.io/manifest.json'
     manifest_json = JSON.parse(Net::HTTP.get(URI(mainfest_url)))
@@ -42,6 +54,9 @@ class ProPreflight < GenericPreflight
     end
     if @runner.config.network_check
       return unless network_check
+    end
+    if @runner.config.preregister
+      return unless preregister
     end
     if @runner.config.label_printer[:enabled]
       generate_label
