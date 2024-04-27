@@ -53,7 +53,7 @@ class GenericPreflight
 
   def preregister
     @runner.update_status port, Rainbow("Pre-registering in Konnected Cloud").yellow
-    uri = 'https://b9txlif9fb.execute-api.us-east-1.amazonaws.com/dev/devices/preregister'
+    uri = ENV['API_BASE'] + '/devices/preregister'
     uri = URI(uri)
     req = Net::HTTP::Post.new(uri)
     req.body = {

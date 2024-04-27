@@ -39,6 +39,7 @@ class PreflightRunner
       puts "[2] Garage Door Opener (v1-S)"
       puts "[3] Garage Door Opener White (v2-S)"
       puts "[4] Garage Door Opener blaQ (v2-Q)"
+      puts "[5] 6-zone Alarm Panel"
       product_id = STDIN.gets.strip
       case product_id.to_i
         when 1
@@ -52,6 +53,9 @@ class PreflightRunner
           @device_class.download_firmware
         when 4
           @device_class = GdoV2qPreflight
+          @device_class.download_firmware
+        when 5
+          @device_class = ApPreflight
           @device_class.download_firmware
         else
           puts Rainbow("Bad entry!").yellow

@@ -6,7 +6,11 @@ class GdoPreflight < GenericPreflight
   end
 
   def start
-    flash_firmware if @runner.config.flash
+    if @runner.config.flash
+      flash_firmware
+    else
+      get_device_id
+    end
     if @runner.config.preregister
       return unless preregister
     end
