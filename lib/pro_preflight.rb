@@ -20,29 +20,26 @@ class ProPreflight < GenericPreflight
   end
 
   def firmware_type
-    'nodemcu'
+    'esphome'
   end
 
   def self.download_firmware
-    mainfest_url = 'https://install.konnected.io/manifest.json'
-    manifest_json = JSON.parse(Net::HTTP.get(URI(mainfest_url)))
-    build = manifest_json['builds'].detect{|build| build['chipFamily'] == 'ESP32' }
-    @firmwares = []
-    build['parts'].each do |part|
-      download_url = part['path']
-      filename = download_url.split('/').last
-      puts Rainbow("Downloading #{download_url}").yellow
-      URI.open(download_url) do |file|
-        File.open("#{Dir.home}/Downloads/#{filename}", "wb") do |f|
-          f.write(file.read)
-        end
+    github_releases_url = 'https://api.github.com/repos/konnected-io/konnected-esphome/releases/latest'
+    key = 'konnected-esphome-alarm-panel-pro-v1.8-ethernet'
+    release_json = JSON.parse(Net::HTTP.get(URI(github_releases_url)))
+    release = release_json['assets'].detect{|asset| asset['name'].start_with?(key) }
+    download_url = release['browser_download_url']
+    @filename = download_url.split('/').last
+    puts Rainbow("Downloading #{download_url}").yellow
+    URI.open(download_url) do |file|
+      File.open("#{Dir.home}/Downloads/#{@filename}", "wb") do |f|
+        f.write(file.read)
       end
-      @firmwares << { file: filename, offset: "0x#{part['offset'].to_i.to_s(16)}" }
     end
   end
 
   def self.firmwares
-    @firmwares
+    @filename
   end
 
   def start
