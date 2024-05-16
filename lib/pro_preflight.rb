@@ -139,7 +139,7 @@ class ProPreflight < GenericPreflight
   private
 
   def ping_test(ip)
-    ping = `ping #{ip} -g 56 -G 1500 -h 64 -i 0.5 -q`
+    ping = `ping #{ip} -g 56 -G 1500 -h 256 -i 0.5 -q`
     packet_loss = ping.match(/(\d+\.\d+)% packet loss/)[1].to_i
     return packet_loss
   end
