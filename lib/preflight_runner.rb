@@ -1,6 +1,6 @@
 class PreflightRunner
 
-    attr_reader :config, :batchnum
+    attr_reader :config, :batchnum, :api_token
 
     def initialize
       @config = Config.new
@@ -13,6 +13,7 @@ class PreflightRunner
     def run
       select_product
       set_batchnum
+      check_aws_token
       while true do
         sleep 1
         Dir[config.serial_port_pattern].each do |port|
@@ -117,19 +118,51 @@ class PreflightRunner
       @ports[port] = status
     end
 
-    def api_token
-      @api_token ||= begin
-         cognito = Aws::CognitoIdentityProvider::Client.new(region: 'us-east-1')
+    def check_aws_token
+      begin
+        refresh_token
+      rescue Aws::CognitoIdentityProvider::Errors::NotAuthorizedException, Errno::ENOENT
+        konnected_cloud_authenticate
+      end
+    end
+
+    private
+
+    def refresh_token
+      @api_token = begin
          res = cognito.admin_initiate_auth(
            user_pool_id: ENV['COGNITO_USER_POOL_ID'],
            client_id: ENV['COGNITO_CLIENT_ID'],
            auth_flow: 'REFRESH_TOKEN_AUTH',
            auth_parameters: {
-             'REFRESH_TOKEN' => ENV['COGNITO_REFRESH_TOKEN']
+             'REFRESH_TOKEN' => File.read('.refresh_token')
            }
          )
          res[:authentication_result][:id_token]
        end
+    end
+
+    def konnected_cloud_authenticate
+      puts Rainbow("Konnected Cloud password?").magenta
+      aws_password = STDIN.gets.strip
+      @api_token = begin
+         aws_srp = Aws::CognitoSrp.new(
+           username: ENV['COGNITO_USERNAME'],
+           pool_id: ENV['COGNITO_USER_POOL_ID'],
+           client_id: ENV['COGNITO_CLIENT_ID'],
+           password: aws_password,
+           aws_client: cognito
+         )
+         resp = aws_srp.authenticate
+         File.open('.refresh_token', 'wb') do |f|
+           f.write(resp.refresh_token)
+         end
+         resp.id_token
+       end
+    end
+
+    def cognito
+      @cognito ||= Aws::CognitoIdentityProvider::Client.new(region: 'us-east-1')
     end
   end
   

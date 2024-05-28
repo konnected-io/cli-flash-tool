@@ -1,3 +1,4 @@
 # local config
 config.yaml
 .env
+.refresh_token
