@@ -5,6 +5,18 @@ class GdoV1sPreflight < GdoPreflight
     'GDOv1-S'
   end
 
+  def device_type
+    'GarageDoor'
+  end
+
+  def chip
+    'ESP8266'
+  end
+
+  def firmware_type
+    'nodemcu'
+  end
+
   def self.download_firmware
     mainfest_url = 'https://install.konnected.io/manifests/konnected-garage-door-opener.json'
     manifest_json = JSON.parse(Net::HTTP.get(URI(mainfest_url)))
