@@ -58,12 +58,15 @@ GEM
       racc (~> 1.4)
     racc (1.7.3)
     rainbow (3.1.1)
+    resolv (0.3.0)
     ruby2_keywords (0.0.5)
     ssdp (1.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     zebra-zpl (1.1.4)
       img2zpl (~> 1.0.0)
+    zeroconf (1.0.0)
+      resolv (~> 0.3.0)
 
 PLATFORMS
   arm64-darwin-22
@@ -79,6 +82,7 @@ DEPENDENCIES
   rainbow
   ssdp
   zebra-zpl
+  zeroconf
 
 BUNDLED WITH
    2.4.19

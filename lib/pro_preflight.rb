@@ -1,6 +1,7 @@
 require 'zebra/zpl'
 require 'labelary'
 require 'ssdp'
+require 'zeroconf'
 require './lib/generic_preflight.rb'
 
 class ProPreflight < GenericPreflight
@@ -69,6 +70,52 @@ class ProPreflight < GenericPreflight
   end
 
   def network_check
+    if firmware_type == 'esphome'
+      network_check_mdns
+    else
+      network_check_ssdp
+    end
+  end
+
+  def network_check_mdns
+    mdns_result = nil
+    begin
+      Timeout.timeout(30) do |sec|
+        start_time = Time.now.to_i
+        countdown = sec
+
+        until mdns_result do
+          @runner.update_status port, Rainbow("CONNECT ETHERNET NOW. Timeout in #{countdown} sec.").yellow.inverse
+          ZeroConf.browse('_konnected._tcp.local') do |res|
+            if res.answer.find{|r| r[2].is_a?(Resolv::DNS::Resource::IN::TXT)}[2].strings.include?("mac=#{@device_id}")
+              mdns_result = res
+            end
+          end
+          countdown = sec - (Time.now.to_i - start_time)
+        end
+      end
+    rescue Timeout::Error
+      @runner.update_status port, Rainbow("FAILED: No network connection!").red
+      return false
+    end
+
+    ip = mdns_result.additional[0][2].address
+    @runner.update_status port, Rainbow("Ethernet connected with IP #{ip}. Running ping test...").aqua
+
+    packet_loss = ping_test(ip)
+    if packet_loss > 0 && packet_loss < 10
+      @runner.update_status port, Rainbow("RETRY: Packet loss #{packet_loss}% Trying again...").yellow
+      packet_loss = ping_test(ip)
+    end
+    if packet_loss > 0
+      @runner.update_status port, Rainbow("FAILED: Packet loss #{packet_loss}%").red
+      return false
+    end
+    true
+  end
+
+  # deprecated for nodemcu firmware
+  def network_check_ssdp
     ssdp_result = nil
 
     begin
