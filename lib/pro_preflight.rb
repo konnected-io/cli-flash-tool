@@ -45,8 +45,7 @@ class ProPreflight < GenericPreflight
 
   def start
     if @runner.config.flash
-      flash_firmware
-      erase_lfs_region
+      return unless flash_firmware
     else
       get_device_id
     end

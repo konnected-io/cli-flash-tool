@@ -22,12 +22,21 @@ class GenericPreflight
     end
 
     esptool_output = []
-    IO.popen("esptool.py --port=#{port} --baud 460800 write_flash --flash_mode dio #{file_parts}").each do |line|
-      esptool_output << line.chomp
-      @runner.update_status(port, Rainbow(line.chomp).aqua)
+    IO.popen("esptool.py --port=#{port} --baud 460800 write_flash -e --flash_mode dio #{file_parts}") do |io|
+      while line = io.gets
+        esptool_output << line.chomp!
+        @runner.update_status(port, Rainbow(line).aqua)
+      end
     end
-    @device_id = esptool_output.detect{|line| line.start_with?('MAC:')}.match(/^MAC: (.*)/)[1].gsub(':','')
-    sleep 1 # wait for device to reset after flashing
+    
+    if $?.success?
+      @device_id = esptool_output.detect{|line| line.start_with?('MAC:')}.match(/^MAC: (.*)/)[1].gsub(':','')
+      sleep 1 # wait for device to reset after flashing
+      true
+    else
+      @runner.update_status(port, Rainbow("Failed to flash the firmware!").red)
+      false
+    end
   end
 
   def get_device_id
