@@ -185,7 +185,21 @@ class ProPreflight < GenericPreflight
   private
 
   def ping_test(ip)
+    if RUBY_PLATFORM.include?('linux')
+      ping_on_linux(ip)
+    else
+      ping_on_mac(ip)
+    end
+  end
+
+  def ping_on_mac(ip)
     ping = `ping #{ip} -g 56 -G 1500 -h 256 -i 0.5 -q`
+    packet_loss = ping.match(/(\d+\.\d+)% packet loss/)[1].to_i
+    return packet_loss
+  end
+
+  def ping_on_linux(ip)
+    ping = `ping #{ip} -s 1088 -c 6 -W 3 -q`
     packet_loss = ping.match(/(\d+\.\d+)% packet loss/)[1].to_i
     return packet_loss
   end
