@@ -48,6 +48,7 @@ class ProPreflight < GenericPreflight
       return unless flash_firmware
     else
       get_device_id
+      sleep 5
     end
     if @runner.config.network_check
       return unless network_check
