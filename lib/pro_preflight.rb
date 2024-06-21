@@ -70,13 +70,17 @@ class ProPreflight < GenericPreflight
 
   def network_check
     if firmware_type == 'esphome'
-      network_check_mdns
+      if RUBY_PLATFORM.include?('linux')
+        network_check_avahi
+      else
+        network_check_zeroconf
+      end
     else
       network_check_ssdp
     end
   end
 
-  def network_check_mdns
+  def network_check_zeroconf
     mdns_result = nil
     begin
       Timeout.timeout(30) do |sec|
@@ -112,6 +116,50 @@ class ProPreflight < GenericPreflight
     end
     true
   end
+
+  def network_check_avahi
+    ip = nil
+    begin
+      Timeout.timeout(30) do |sec|
+        start_time = Time.now.to_i
+        countdown = sec
+
+        until ip do
+          @runner.update_status port, Rainbow("CONNECT ETHERNET NOW. Timeout in #{countdown} sec.").yellow.inverse
+          IO.popen("avahi-browse -r -t _konnected._tcp") do |io|
+            while line = io.gets
+              if line.strip.start_with?('address')
+                addr = line.match(/\[([\d\.]+)\]/)[1]
+              end
+              if line.strip.start_with?('txt')
+                if line.match(/mac=#{@device_id}/)
+                  ip = addr
+                end
+              end
+            end
+          end
+          countdown = sec - (Time.now.to_i - start_time)
+        end
+      end
+    rescue Timeout::Error
+      @runner.update_status port, Rainbow("FAILED: No network connection!").red
+      return false
+    end
+
+    @runner.update_status port, Rainbow("Ethernet connected with IP #{ip}. Running ping test...").aqua
+
+    packet_loss = ping_test(ip)
+    if packet_loss > 0 && packet_loss < 10
+      @runner.update_status port, Rainbow("RETRY: Packet loss #{packet_loss}% Trying again...").yellow
+      packet_loss = ping_test(ip)
+    end
+    if packet_loss > 0
+      @runner.update_status port, Rainbow("FAILED: Packet loss #{packet_loss}%").red
+      return false
+    end
+    true
+  end
+
 
   # deprecated for nodemcu firmware
   def network_check_ssdp
