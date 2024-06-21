@@ -248,7 +248,7 @@ class ProPreflight < GenericPreflight
 
   def ping_on_linux(ip)
     ping = `ping #{ip} -s 1088 -c 6 -W 3 -q`
-    packet_loss = ping.match(/(\d+\.\d+)% packet loss/)[1].to_i
+    packet_loss = ping.match(/(\d*\.?\d+)% packet loss/)[1].to_i
     return packet_loss
   end
 
