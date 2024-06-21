@@ -229,7 +229,7 @@ class ProPreflight < GenericPreflight
         symbol_height:     3
       )
   
-    label = label
+    @label = label
   end
 
   private
