@@ -28,7 +28,7 @@ class GenericPreflight
         @runner.update_status(port, Rainbow(line).aqua)
       end
     end
-    
+
     if $?.success?
       @device_id = esptool_output.detect{|line| line.start_with?('MAC:')}.match(/^MAC: (.*)/)[1].gsub(':','')
       sleep 1 # wait for device to reset after flashing
@@ -99,7 +99,7 @@ class GenericPreflight
   def print_zpl_label
     print_job = Zebra::PrintJob.new @runner.config.label_printer[:name]
     ip = @runner.config.label_printer[:ip]
-    print_job.print @label, ip
+    print_job.print @label, ip, print_service: 'lp'
   end
 
   def print_pdf_label

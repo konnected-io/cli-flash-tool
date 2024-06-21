@@ -207,28 +207,29 @@ class ProPreflight < GenericPreflight
     label = Zebra::Zpl::Label.new(
       width:        203,
       length:       101,
-      print_speed:  3
+      print_speed:  3,
+      print_density: 15
     )
   
     label << Zebra::Zpl::Text.new(
         data:       "#{@device_id}",
-        position:   [20, 20],
+        position:   [30, 20],
         font_size:  Zebra::Zpl::FontSize::SIZE_2,
       )
   
     label << Zebra::Zpl::Text.new(
         data: "Batch: #{@runner.batchnum}",
-        position: [20, 50],
+        position: [30, 50],
         font_size: Zebra::Zpl::FontSize::SIZE_2
       )
   
     label << Zebra::Zpl::Datamatrix.new(
         data:             @device_id,
-        position:         [150,20],
+        position:         [165,20],
         symbol_height:     3
       )
   
-    @label = label
+    label = label
   end
 
   private
