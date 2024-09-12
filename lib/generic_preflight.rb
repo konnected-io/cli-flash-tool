@@ -80,7 +80,15 @@ class GenericPreflight
       http.request(req)
     end
 
-    res.is_a?(Net::HTTPSuccess)
+    return true if res.is_a?(Net::HTTPSuccess)
+
+    if res.is_a?(Net::HTTPBadRequest)
+      err = JSON.parse(res.body)['error']
+      @runner.update_status port, Rainbow(err).red
+    else
+      @runner.update_status port, Rainbow(res.body).red
+    end
+    false
   end
 
   def finish
