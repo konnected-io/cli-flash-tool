@@ -92,7 +92,7 @@ class PreflightRunner
       end
     end
   
-    def elapsed_time
+  def elapsed_time
       seconds = (Time.now - @started_at).to_i
       "#{seconds / 60}:" + "%02d" % (seconds % 60)
     end
@@ -162,7 +162,19 @@ class PreflightRunner
     end
 
     def cognito
-      @cognito ||= Aws::CognitoIdentityProvider::Client.new(region: 'us-east-1')
+      begin
+        credentials = Aws::SSOCredentials.new(
+          sso_account_id: '684083964462',
+          sso_role_name: 'AdministratorAccess',
+          sso_region: "us-east-1",
+          sso_session: 'my-sso'
+        )
+        @cognito ||= Aws::CognitoIdentityProvider::Client.new(region: 'us-east-1', credentials: credentials)
+      rescue Aws::Errors::InvalidSSOToken
+        out = `aws sso login --sso-session my-sso`
+        puts Rainbow(out).aqua
+        
+      end    
     end
   end
   

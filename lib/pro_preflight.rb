@@ -91,7 +91,8 @@ class ProPreflight < GenericPreflight
         until mdns_result do
           @runner.update_status port, Rainbow("CONNECT ETHERNET NOW. Timeout in #{countdown} sec.").yellow.inverse
           ZeroConf.browse('_konnected._tcp.local') do |res|
-            if res.answer.find{|r| r[2].is_a?(Resolv::DNS::Resource::IN::TXT)}[2].strings.include?("mac=#{@device_id}")
+            txt = res.answer.find{|r| r[2].is_a?(Resolv::DNS::Resource::IN::TXT)}
+            if txt && txt[2]&.strings&.include?("mac=#{@device_id}")
               mdns_result = res
             end
           end
