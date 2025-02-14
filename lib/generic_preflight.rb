@@ -62,33 +62,25 @@ class GenericPreflight
 
   def preregister
     @runner.update_status port, Rainbow("Pre-registering in Konnected Cloud").yellow
-    uri = ENV['API_BASE'] + '/devices/preregister'
-    uri = URI(uri)
-    req = Net::HTTP::Post.new(uri)
-    req.body = {
-      id: @device_id,
-      batch: @runner.batchnum,
-      type: device_type,
-      firmware: firmware_type,
-      chip: chip
-    }.to_json
-    req.content_type = 'application/json'
-    req['Authorization'] = @runner.api_token
-    req['Accept'] = 'application/json'
+    lambda_client = Aws::Lambda::Client.new(
+      region: 'us-east-1', credentials: @runner.sso_credentials
+    )
+    resp = lambda_client.invoke({
+      function_name: 'konnected-cloud-prod-device_job-preregister',
+      payload: {
+        id: @device_id,
+        batch: @runner.batchnum,
+        type: device_type,
+        firmware: firmware_type,
+        chip: chip
+      }.to_json
+    })
 
-    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-      http.request(req)
+    unless resp.status_code == 200
+      @runner.update_status port, Rainbow(resp.payload).red
+      return false
     end
-
-    return true if res.is_a?(Net::HTTPSuccess)
-
-    if res.is_a?(Net::HTTPBadRequest)
-      err = JSON.parse(res.body)['error']
-      @runner.update_status port, Rainbow(err).red
-    else
-      @runner.update_status port, Rainbow(res.body).red
-    end
-    false
+    true
   end
 
   def finish

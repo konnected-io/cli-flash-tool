@@ -7,8 +7,7 @@ require 'net/http'
 require 'open-uri'
 require 'active_support'
 require 'active_support/core_ext'
-require 'aws-sdk-cognitoidentityprovider'
-require 'aws-cognito-srp'
+require 'aws-sdk-lambda'
 
 Dotenv.load
 

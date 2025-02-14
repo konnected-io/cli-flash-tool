@@ -1,6 +1,6 @@
 class PreflightRunner
 
-    attr_reader :config, :batchnum, :api_token
+    attr_reader :config, :batchnum
 
     def initialize
       @config = Config.new
@@ -11,9 +11,9 @@ class PreflightRunner
     end
   
     def run
+      sso_credentials
       select_product
       set_batchnum
-      check_aws_token
       while true do
         sleep 1
         Dir[config.serial_port_pattern].each do |port|
@@ -92,7 +92,7 @@ class PreflightRunner
       end
     end
   
-  def elapsed_time
+    def elapsed_time
       seconds = (Time.now - @started_at).to_i
       "#{seconds / 60}:" + "%02d" % (seconds % 60)
     end
@@ -118,63 +118,23 @@ class PreflightRunner
       @ports[port] = status
     end
 
-    def check_aws_token
+    def sso_credentials
       begin
-        refresh_token
-      rescue Aws::CognitoIdentityProvider::Errors::NotAuthorizedException, Errno::ENOENT
-        konnected_cloud_authenticate
-      end
-    end
-
-    private
-
-    def refresh_token
-      @api_token = begin
-         res = cognito.admin_initiate_auth(
-           user_pool_id: ENV['COGNITO_USER_POOL_ID'],
-           client_id: ENV['COGNITO_CLIENT_ID'],
-           auth_flow: 'REFRESH_TOKEN_AUTH',
-           auth_parameters: {
-             'REFRESH_TOKEN' => File.read('.refresh_token')
-           }
-         )
-         res[:authentication_result][:id_token]
-       end
-    end
-
-    def konnected_cloud_authenticate
-      puts Rainbow("Konnected Cloud password?").magenta
-      aws_password = STDIN.gets.strip
-      @api_token = begin
-         aws_srp = Aws::CognitoSrp.new(
-           username: ENV['COGNITO_USERNAME'],
-           pool_id: ENV['COGNITO_USER_POOL_ID'],
-           client_id: ENV['COGNITO_CLIENT_ID'],
-           password: aws_password,
-           aws_client: cognito
-         )
-         resp = aws_srp.authenticate
-         File.open('.refresh_token', 'wb') do |f|
-           f.write(resp.refresh_token)
-         end
-         resp.id_token
-       end
-    end
-
-    def cognito
-      begin
-        credentials = Aws::SSOCredentials.new(
+        @sso_credentials ||= Aws::SSOCredentials.new(
           sso_account_id: '684083964462',
           sso_role_name: 'AdministratorAccess',
           sso_region: "us-east-1",
           sso_session: 'my-sso'
         )
-        @cognito ||= Aws::CognitoIdentityProvider::Client.new(region: 'us-east-1', credentials: credentials)
       rescue Aws::Errors::InvalidSSOToken
-        out = `aws sso login --sso-session my-sso`
-        puts Rainbow(out).aqua
-        
-      end    
+        IO.popen("aws sso login --sso-session my-sso") do |io|
+          while line = io.gets do
+            puts Rainbow(line).aqua
+          end
+        end
+        sso_credentials
+      end
     end
+
   end
   
