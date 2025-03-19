@@ -39,6 +39,10 @@ class ProPreflight < GenericPreflight
     end
   end
 
+  def self.nextgenid_firmware
+    @filename = 'alarm-panel-pro-kiosk-alarm-0.2.0.bin'
+  end
+
   def self.firmwares
     @filename
   end

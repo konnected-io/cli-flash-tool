@@ -41,6 +41,8 @@ class PreflightRunner
       puts "[3] Garage Door Opener White (v2-S)"
       puts "[4] Garage Door Opener blaQ (v2-Q)"
       puts "[5] 6-zone Alarm Panel"
+      puts "---"
+      puts "[6] NextgenID custom Pro firmware"
       product_id = STDIN.gets.strip
       case product_id.to_i
         when 1
@@ -58,6 +60,9 @@ class PreflightRunner
         when 5
           @device_class = ApPreflight
           @device_class.download_firmware
+        when 6
+          @device_class = ProPreflight
+          @device_class.nextgenid_firmware
         else
           puts Rainbow("Bad entry!").yellow
           raise("You suck")
