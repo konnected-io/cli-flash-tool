@@ -223,7 +223,7 @@ class ProPreflight < GenericPreflight
       )
   
     label << Zebra::Zpl::Text.new(
-        data: "Batch: #{@runner.batchnum}",
+        data: "Batch: #{@batchnum}",
         position: [25, 50],
         font_size: Zebra::Zpl::FontSize::SIZE_2
       )

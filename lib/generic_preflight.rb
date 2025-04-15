@@ -80,6 +80,7 @@ class GenericPreflight
       @runner.update_status port, Rainbow(resp.payload).red
       return false
     end
+    @batchnum = JSON.parse(resp.payload.read)['batch']&.to_i
     true
   end
 
