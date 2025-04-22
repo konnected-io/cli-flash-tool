@@ -41,7 +41,7 @@ class GdoPreflight < GenericPreflight
       )
   
     label << Zebra::Zpl::Text.new(
-        data: "Batch: #{@runner.batchnum}",
+        data: "Batch: #{@batchnum || @runner.batchnum}",
         position: [20, 70],
         font_size: Zebra::Zpl::FontSize::SIZE_1
       )
