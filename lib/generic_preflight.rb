@@ -30,7 +30,8 @@ class GenericPreflight
     end
 
     if $?.success?
-      @device_id = esptool_output.detect{|line| line.start_with?('MAC:')}.match(/^MAC: (.*)/)[1].gsub(':','')
+      @device_id = esptool_output.detect{|line| line.start_with?('MAC:')}.match(/^MAC:\s+(.*)/)[1].gsub(':','')
+      @runner.update_status(port, Rainbow(@device_id).blue)
       sleep 1 # wait for device to reset after flashing
       true
     else
@@ -45,7 +46,7 @@ class GenericPreflight
       esptool_output << line.chomp
       @runner.update_status(port, Rainbow(line.chomp).aqua)
     end
-    @device_id = esptool_output.detect{|line| line.start_with?('MAC:')}.match(/^MAC: (.*)/)[1].gsub(':','')
+    @device_id = esptool_output.detect{|line| line.start_with?('MAC:')}.match(/^MAC:\s+(.*)/)[1].gsub(':','')
   end
 
   def print_label
