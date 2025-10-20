@@ -1,72 +1,82 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (7.1.0)
+    activesupport (8.0.3)
       base64
+      benchmark (>= 0.3)
       bigdecimal
-      concurrent-ruby (~> 1.0, >= 1.0.2)
+      concurrent-ruby (~> 1.0, >= 1.3.1)
       connection_pool (>= 2.2.5)
       drb
       i18n (>= 1.6, < 2)
+      logger (>= 1.4.2)
       minitest (>= 5.1)
-      mutex_m
-      tzinfo (~> 2.0)
-    aws-eventstream (1.3.0)
-    aws-partitions (1.917.0)
-    aws-sdk-cognitoidentityprovider (1.88.0)
-      aws-sdk-core (~> 3, >= 3.191.0)
-      aws-sigv4 (~> 1.1)
-    aws-sdk-core (3.192.1)
+      securerandom (>= 0.3)
+      tzinfo (~> 2.0, >= 2.0.5)
+      uri (>= 0.13.1)
+    aws-eventstream (1.4.0)
+    aws-partitions (1.1174.0)
+    aws-sdk-core (3.233.0)
       aws-eventstream (~> 1, >= 1.3.0)
-      aws-partitions (~> 1, >= 1.651.0)
-      aws-sigv4 (~> 1.8)
-      jmespath (~> 1, >= 1.6.1)
-    aws-sdk-lambda (1.118.0)
-      aws-sdk-core (~> 3, >= 3.191.0)
-      aws-sigv4 (~> 1.1)
-    aws-sigv4 (1.8.0)
-      aws-eventstream (~> 1, >= 1.0.2)
-    base64 (0.1.1)
-    bigdecimal (3.1.4)
-    concurrent-ruby (1.2.2)
-    connection_pool (2.4.1)
-    dotenv (2.8.1)
-    drb (2.1.1)
-      ruby2_keywords
-    faraday (2.7.11)
+      aws-partitions (~> 1, >= 1.992.0)
+      aws-sigv4 (~> 1.9)
       base64
-      faraday-net_http (>= 2.0, < 3.1)
-      ruby2_keywords (>= 0.0.4)
-    faraday-multipart (1.0.4)
-      multipart-post (~> 2)
-    faraday-net_http (3.0.2)
-    i18n (1.14.1)
+      bigdecimal
+      jmespath (~> 1, >= 1.6.1)
+      logger
+    aws-sdk-lambda (1.161.0)
+      aws-sdk-core (~> 3, >= 3.231.0)
+      aws-sigv4 (~> 1.5)
+    aws-sigv4 (1.12.1)
+      aws-eventstream (~> 1, >= 1.0.2)
+    base64 (0.3.0)
+    benchmark (0.4.1)
+    bigdecimal (3.3.1)
+    concurrent-ruby (1.3.5)
+    connection_pool (2.5.4)
+    dotenv (3.1.8)
+    drb (2.2.3)
+    faraday (2.14.0)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-multipart (1.1.1)
+      multipart-post (~> 2.0)
+    faraday-net_http (3.4.1)
+      net-http (>= 0.5.0)
+    i18n (1.14.7)
       concurrent-ruby (~> 1.0)
-    img2zpl (1.0.1)
-      mini_magick (~> 4.9)
+    img2zpl (1.0.3)
+      mini_magick (>= 4.9)
     jmespath (1.6.2)
-    labelary (0.5.0)
+    json (2.15.1)
+    labelary (0.6.0)
       activesupport
       faraday (>= 0.9, < 3)
       faraday-multipart
-    mini_magick (4.12.0)
-    minitest (5.20.0)
-    multipart-post (2.3.0)
-    mutex_m (0.1.2)
-    nokogiri (1.16.4-arm64-darwin)
+    logger (1.7.0)
+    mini_magick (5.3.1)
+      logger
+    minitest (5.26.0)
+    multipart-post (2.4.1)
+    net-http (0.6.0)
+      uri
+    nokogiri (1.18.10-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.16.4-x86_64-darwin)
+    nokogiri (1.18.10-x86_64-darwin)
       racc (~> 1.4)
-    racc (1.7.3)
+    openssl (3.3.1)
+    racc (1.8.1)
     rainbow (3.1.1)
-    resolv (0.3.0)
-    ruby2_keywords (0.0.5)
+    resolv (0.3.1)
+    securerandom (0.4.1)
     ssdp (1.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
+    uri (1.0.4)
     zebra-zpl (1.1.4)
       img2zpl (~> 1.0.0)
-    zeroconf (1.0.0)
+    zeroconf (1.2.0)
       resolv (~> 0.3.0)
 
 PLATFORMS
@@ -76,11 +86,11 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport
-  aws-sdk-cognitoidentityprovider
   aws-sdk-lambda
   dotenv
   labelary
   nokogiri
+  openssl
   rainbow
   ssdp
   zebra-zpl
