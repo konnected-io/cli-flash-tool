@@ -67,7 +67,7 @@ class GenericPreflight
       region: 'us-east-1', credentials: @runner.sso_credentials
     )
     resp = lambda_client.invoke({
-      function_name: 'konnected-cloud-prod-device_job-preregister',
+      function_name: 'konnected-cloud-prod-v5-device_job-preregister',
       payload: {
         id: @device_id,
         batch: @runner.batchnum,

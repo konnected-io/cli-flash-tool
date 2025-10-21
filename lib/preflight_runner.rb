@@ -127,7 +127,7 @@ class PreflightRunner
       begin
         @sso_credentials ||= Aws::SSOCredentials.new(
           sso_account_id: '684083964462',
-          sso_role_name: 'AdministratorAccess',
+          sso_role_name: 'Flasher',
           sso_region: "us-east-1",
           sso_session: 'my-sso'
         )
