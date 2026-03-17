@@ -2,6 +2,7 @@ require 'zebra/zpl'
 require 'labelary'
 require 'ssdp'
 require 'zeroconf'
+require 'net/ping'
 require './lib/generic_preflight.rb'
 
 class ProPreflight < GenericPreflight
@@ -40,6 +41,7 @@ class ProPreflight < GenericPreflight
   end
 
   def self.nextgenid_firmware
+    @no_mdns = true
     @filename = 'alarm-panel-pro-kiosk-alarm-0.2.0.bin'
   end
 
@@ -86,30 +88,46 @@ class ProPreflight < GenericPreflight
   end
 
   def network_check_zeroconf
-    mdns_result = nil
-    begin
-      Timeout.timeout(30) do |sec|
-        start_time = Time.now.to_i
-        countdown = sec
+    
+    unless @no_mdns
+      mdns_result = nil
+      begin
+        Timeout.timeout(30) do |sec|
+          start_time = Time.now.to_i
+          countdown = sec
 
-        until mdns_result do
-          @runner.update_status port, Rainbow("CONNECT ETHERNET NOW. Timeout in #{countdown} sec.").yellow.inverse
-          ZeroConf.browse('_konnected._tcp.local') do |res|
-            txt = res.additional.find{|r| r[2].is_a?(Resolv::DNS::Resource::IN::TXT)}
-            if txt && txt[2]&.strings&.include?("mac=#{@device_id}")
-              mdns_result = res
+          until mdns_result do
+            @runner.update_status port, Rainbow("CONNECT ETHERNET NOW. Timeout in #{countdown} sec.").yellow.inverse
+            ZeroConf.browse('_konnected._tcp.local') do |res|
+              txt = res.additional.find{|r| r[2].is_a?(Resolv::DNS::Resource::IN::TXT)}
+              if txt && txt[2]&.strings&.include?("mac=#{@device_id}")
+                mdns_result = res
+              end
             end
+            countdown = sec - (Time.now.to_i - start_time)
           end
-          countdown = sec - (Time.now.to_i - start_time)
         end
+      rescue Timeout::Error
+        @runner.update_status port, Rainbow("FAILED: No network connection!").red
+        return false
       end
-    rescue Timeout::Error
-      @runner.update_status port, Rainbow("FAILED: No network connection!").red
-      return false
-    end
 
-    ip = mdns_result.additional[2][2].address
-    @runner.update_status port, Rainbow("Ethernet connected with IP #{ip}. Running ping test...").aqua
+      ip = mdns_result.additional[2][2].address
+      @runner.update_status port, Rainbow("Ethernet connected with IP #{ip}. Running ping test...").aqua
+    else
+      ip = "konnected-#{@device_id[6,12]}.local"
+      begin
+        Timeout.timeout(30) do |sec|
+          until pinged do
+            @runner.update_status port, Rainbow("FINDING ON NETWORK").yellow.inverse
+            pinged = Net::Ping::External.new(ip).ping?
+          end
+        end
+      rescue Timeout::Error
+        @runner.update_status port, Rainbow("FAILED: No network connection!").red
+        return false
+      end
+    end
 
     packet_loss = ping_test(ip)
     if packet_loss > 0 && packet_loss < 10

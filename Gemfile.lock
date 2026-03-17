@@ -60,6 +60,7 @@ GEM
     multipart-post (2.4.1)
     net-http (0.7.0)
       uri
+    net-ping (2.0.8)
     nokogiri (1.18.10-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.10-x86_64-darwin)
@@ -88,6 +89,7 @@ DEPENDENCIES
   aws-sdk-lambda
   dotenv
   labelary
+  net-ping
   nokogiri
   openssl
   rainbow
