@@ -42,7 +42,7 @@ class ProPreflight < GenericPreflight
 
   def self.nextgenid_firmware
     @no_mdns = true
-    @filename = 'alarm-panel-pro-kiosk-alarm-0.2.0.bin'
+    @filename = 'alarm-panel-pro-kiosk-alarm-0.4.0.bin'
   end
 
   def self.firmwares
