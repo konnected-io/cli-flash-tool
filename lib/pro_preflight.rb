@@ -88,8 +88,7 @@ class ProPreflight < GenericPreflight
   end
 
   def network_check_zeroconf
-    
-    unless @no_mdns
+    unless self.class.instance_variable_get(:@no_mdns)
       mdns_result = nil
       begin
         Timeout.timeout(30) do |sec|
@@ -116,11 +115,13 @@ class ProPreflight < GenericPreflight
       @runner.update_status port, Rainbow("Ethernet connected with IP #{ip}. Running ping test...").aqua
     else
       ip = "konnected-#{@device_id[6,12]}.local"
+      pinged = false
       begin
         Timeout.timeout(30) do |sec|
           until pinged do
             @runner.update_status port, Rainbow("FINDING ON NETWORK").yellow.inverse
             pinged = Net::Ping::External.new(ip).ping?
+            sleep 1 if !pinged
           end
         end
       rescue Timeout::Error
