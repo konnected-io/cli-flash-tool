@@ -12,25 +12,32 @@ class GenericPreflight
     @port = port
   end
 
-  def flash_firmware
-    file_parts = if self.class.firmwares.is_a?(Array)
-      self.class.firmwares.map do |part|
-        "#{part[:offset]} #{Dir.home}/Downloads/#{part[:file]}"
+  # Erases the whole chip and writes `firmwares` (default: the product's stock
+  # image). Entries are filenames in ~/Downloads, or absolute paths.
+  def flash_firmware(firmwares = self.class.firmwares)
+    image_path = ->(file) { file.start_with?('/') ? file : "#{Dir.home}/Downloads/#{file}" }
+    file_parts = if firmwares.is_a?(Array)
+      firmwares.map do |part|
+        "#{part[:offset]} #{image_path.call(part[:file])}"
       end.join(' ')
     else
-      "0x0 #{Dir.home}/Downloads/#{self.class.firmwares}"
+      "0x0 #{image_path.call(firmwares)}"
     end
 
     esptool_output = []
-    IO.popen("esptool.py --port=#{port} --baud 460800 write_flash -e --flash_mode dio #{file_parts}") do |io|
+    IO.popen("esptool.py --port=#{port} --baud 460800 write_flash -e --flash_mode dio #{file_parts} 2>&1") do |io|
       while line = io.gets
-        esptool_output << line.chomp!
+        line = line.chomp
+        esptool_output << line
         @runner.update_status(port, Rainbow(line).aqua)
       end
     end
 
-    if $?.success?
-      @device_id = esptool_output.detect{|line| line.start_with?('MAC:')}.match(/^MAC:\s+(.*)/)[1].gsub(':','')
+    # esptool prints the MAC before writing, so a failed write still identifies the unit.
+    mac_line = esptool_output.detect { |line| line.start_with?('MAC:') }
+    @device_id = mac_line.match(/^MAC:\s+(.*)/)[1].gsub(':', '') if mac_line
+
+    if $?.success? && @device_id
       @runner.update_status(port, Rainbow(@device_id).blue)
       sleep 1 # wait for device to reset after flashing
       true

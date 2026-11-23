@@ -2,3 +2,6 @@
 config.yaml
 .env
 .refresh_token
+
+# self-test results, local copy of every sheet row
+self-test-results.jsonl
