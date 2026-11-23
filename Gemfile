@@ -11,3 +11,5 @@ gem 'nokogiri'
 gem 'dotenv'
 gem 'openssl'
 gem 'net-ping'
+gem "serialport", "~> 1.4"
+gem "google-apis-sheets_v4", "~> 0.51.0"

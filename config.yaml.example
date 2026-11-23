@@ -6,3 +6,12 @@ label_printer:
   name: Brother_QL_810W
   ip: 192.168.1.33
 serial_port_pattern: /dev/cu.usbserial*
+# Self-test for returned units (GDO blaQ). Offered as a mode at startup.
+self_test:
+  enabled: false            # default answer at the "Self-test before flashing?" prompt
+  sheet_id: ""              # Google Sheet ID for results (from the sheet's URL)
+  sheet_tab: Results
+  wifi_ssid: ""             # optional: require this SSID in the device's WiFi scan...
+  min_rssi: -70             # ...at or above this signal strength (dBm)
+  report_timeout: 180       # seconds to wait for the report (covers 3 x 45s harness waits)
+  firmware: ""              # optional: local self-test .bin instead of the release asset
